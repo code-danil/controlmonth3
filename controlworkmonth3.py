@@ -1,44 +1,55 @@
-# ### **Добавить сохранение истории в файл**
+import flet as ft
 
-history = []
+def main(page: ft.Page):
+    page.title = 'приветствия'
 
-try:
-    with open('history.txt', 'r', encoding='utf8') as file:
-        history = file.read().splitlines()
-except FileNotFoundError:
-    history = []
+    try:
+        with open('history.txt', 'r', encoding='utf-8') as f:
+            history = f.readlines()
+            
+    except FileNotFoundError:
+        history = []
 
+    old_history = ft.Text(''.join(history))
 
-print('История посещения:')
-for line in  history:
-    print(line)  
-print("-" * 10)
+    name_input = ft.TextField(label='Имя пользователя')
 
-name = input('enter name: ')
-greeting = f'Приветствую, {name}!'
-history.append(greeting)
-print(greeting)
-
-with open('history.txt', 'a', encoding='utf8') as file:
-    file.write(greeting + '\n')  
-
+    def greeting(e):
+            name = name_input.value
+            if not name:
+                 return
+            
+            new_greeting = f'Привет, {name}!\n'
 
 
+            history.append(new_greeting)
+
+            if len(history) > 5:
+                 history[:] = history[-5:]
+
+            with open('history.txt', 'w', encoding='utf-8') as f:
+                f.writelines(history)
+              
+                
+            old_history.value = ''.join(history)
+            name_input.value = ''
+
+            page.update()
+
+    name_input.on_submit = greeting
 
 
-# ### **4. Добавить ограничение по длине истории **
+    batton = ft.ElevatedButton('Поприветствовать', on_click=greeting)
 
-greetings_history = []
+    page.add(
+        old_history,
+        name_input,
+        batton
+    )
 
-for i in range(10):
-    greeting = f'Приветствеий! {i+1}'
-    greetings_history.append(greeting)
 
-
-    greetings_history = greetings_history[-5:]
-
-    print(f'Текущий история: {greetings_history}')
-
+        
+ft.app(target=main)
 
 
 
